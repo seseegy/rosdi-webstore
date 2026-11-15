@@ -1,0 +1,14 @@
+const [wsUrl, , baseUrl, outDir] = process.argv.slice(2);
+const ws = new WebSocket(wsUrl);
+let nextId = 1; const pending = new Map();
+const send = (m, p = {}) => new Promise((res, rej) => { const id = nextId++; pending.set(id, { resolve: res, reject: rej }); ws.send(JSON.stringify({ id, method: m, params: p })); });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ws.onmessage = (ev) => { const msg = JSON.parse(ev.data); if (msg.id && pending.has(msg.id)) { const { resolve, reject } = pending.get(msg.id); pending.delete(msg.id); if (msg.error) reject(new Error(JSON.stringify(msg.error))); else resolve(msg.result); } };
+await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+await send("Page.enable"); await send("Runtime.enable");
+const evalJs = (e) => send("Runtime.evaluate", { expression: e, returnByValue: true, awaitPromise: true }).then((r) => { if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 300)); return r.result.value; });
+await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+await evalJs(`location.assign(${JSON.stringify(baseUrl + "#/sukses/RSD-EUGAA274FRWM")}); 'ok'`);
+await sleep(2500);
+console.log("F57-sukses-total", JSON.stringify(await evalJs(`(() => { const tot = document.querySelector('.sum-total b')?.textContent; const hb = [...document.querySelectorAll('.sum-row')].find((r) => r.textContent.includes('Harga + biaya'))?.textContent.trim(); const stored = (JSON.parse(localStorage.getItem('rosdi_orders') || '[]')).find((o) => o.ref === 'RSD-EUGAA274FRWM'); return { totalSukses: tot, hargaBiaya: hb, stored: stored ? { base: stored.base, fee: stored.fee, disc: stored.disc, total: stored.total } : 'TIDAK-ADA' }; })()`)));
+process.exit(0);
