@@ -1,0 +1,25 @@
+// Uji I88: warna terhitung .note.good di halaman Pulsa Telkomsel (Light).
+import { writeFileSync, mkdirSync } from "node:fs";
+const [wsUrl, , baseUrl, outDir] = process.argv.slice(2);
+mkdirSync(outDir, { recursive: true });
+const ws = new WebSocket(wsUrl);
+let nextId = 1;
+const pending = new Map();
+const send = (method, params = {}) => new Promise((resolve, reject) => { const id = nextId++; pending.set(id, { resolve, reject }); ws.send(JSON.stringify({ id, method, params })); });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ws.onmessage = (ev) => { const msg = JSON.parse(ev.data); if (msg.id && pending.has(msg.id)) { const { resolve, reject } = pending.get(msg.id); pending.delete(msg.id); if (msg.error) reject(new Error(JSON.stringify(msg.error))); else resolve(msg.result); } };
+await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+await send("Page.enable");
+await send("Runtime.enable");
+await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 1000, deviceScaleFactor: 1, mobile: true });
+const evalJs = (expression) => send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }).then((r) => { if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 500)); return r.result.value; });
+await evalJs(`location.assign(${JSON.stringify(baseUrl)})`);
+await sleep(2500);
+await evalJs(`location.hash = '#/pulsa/telkomsel'; 'ok'`);
+await sleep(1300);
+await evalJs(`(() => { const el = document.querySelector('#hp'); const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set; setter.call(el, '081234567890'); el.dispatchEvent(new Event('input', { bubbles: true })); return el.value; })()`);
+await sleep(500);
+const r = await evalJs(`(() => { const el = document.querySelector('.note.good'); if (!el) return { found: false }; const cs = getComputedStyle(el); return { text: el.textContent, color: cs.color, fontSize: cs.fontSize }; })()`);
+writeFileSync(`${outDir}/cdp-s432d.json`, JSON.stringify({ 88: r }, null, 1));
+ws.close();
+console.log(JSON.stringify({ 88: r }));

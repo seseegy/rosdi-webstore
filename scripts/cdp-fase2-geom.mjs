@@ -1,0 +1,45 @@
+// Probe geometri harga nominal di zoom CSS 190% — kenapa teks keluar kartu?
+import { mkdirSync } from "node:fs";
+const [wsUrl, wArg, baseUrl, outDir] = process.argv.slice(2);
+mkdirSync(outDir, { recursive: true });
+const ws = new WebSocket(wsUrl);
+let nextId = 1;
+const pending = new Map();
+const send = (m, p = {}) => new Promise((res, rej) => { const id = nextId++; pending.set(id, { resolve: res, reject: rej }); ws.send(JSON.stringify({ id, method: m, params: p })); });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ws.onmessage = (ev) => { const msg = JSON.parse(ev.data); if (msg.id && pending.has(msg.id)) { const { resolve, reject } = pending.get(msg.id); pending.delete(msg.id); if (msg.error) reject(new Error(JSON.stringify(msg.error))); else resolve(msg.result); } };
+await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+await send("Page.enable"); await send("Runtime.enable");
+const evalJs = (e) => send("Runtime.evaluate", { expression: e, returnByValue: true, awaitPromise: true }).then((r) => { if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 500)); return r.result.value; });
+await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+await sleep(400);
+await evalJs(`location.assign(${JSON.stringify(baseUrl + "#/game/mobile-legends")}); 'ok'`);
+await sleep(1500);
+const before = await evalJs(`(() => {
+  const card = document.querySelector('.nom');
+  const price = card.querySelector('.n-price');
+  const grid = document.querySelector('.nom-grid');
+  const cs = getComputedStyle(grid);
+  const cr = card.getBoundingClientRect();
+  const pr = price.getBoundingClientRect();
+  const range = document.createRange(); range.selectNodeContents(price);
+  const tr = range.getBoundingClientRect();
+  return { innerWidth: window.innerWidth, gridCols: cs.gridTemplateColumns, cardW: +cr.width.toFixed(1), cardL: +cr.left.toFixed(1), cardR: +cr.right.toFixed(1), priceW: +pr.width.toFixed(1), priceSW: price.scrollWidth, priceCW: price.clientWidth, priceL: +pr.left.toFixed(1), priceR: +pr.right.toFixed(1), textL: +tr.left.toFixed(1), textR: +tr.right.toFixed(1), textW: +tr.width.toFixed(1), fontSize: getComputedStyle(price).fontSize, whiteSpace: getComputedStyle(price).whiteSpace, priceHTML: price.outerHTML.slice(0, 200) };
+})()`);
+console.log("ZOOM-100", JSON.stringify(before));
+await evalJs(`document.documentElement.style.zoom = '190%'; 'ok'`);
+await sleep(600);
+const after = await evalJs(`(() => {
+  const card = document.querySelector('.nom');
+  const price = card.querySelector('.n-price');
+  const grid = document.querySelector('.nom-grid');
+  const cs = getComputedStyle(grid);
+  const cr = card.getBoundingClientRect();
+  const pr = price.getBoundingClientRect();
+  const range = document.createRange(); range.selectNodeContents(price);
+  const tr = range.getBoundingClientRect();
+  return { innerWidth: window.innerWidth, gridCols: cs.gridTemplateColumns, cardW: +cr.width.toFixed(1), cardL: +cr.left.toFixed(1), cardR: +cr.right.toFixed(1), priceW: +pr.width.toFixed(1), priceSW: price.scrollWidth, priceCW: price.clientWidth, priceL: +pr.left.toFixed(1), priceR: +pr.right.toFixed(1), textL: +tr.left.toFixed(1), textR: +tr.right.toFixed(1), textW: +tr.width.toFixed(1), fontSize: getComputedStyle(price).fontSize, whiteSpace: getComputedStyle(price).whiteSpace };
+})()`);
+console.log("ZOOM-190", JSON.stringify(after));
+console.log("SELESAI");
+process.exit(0);

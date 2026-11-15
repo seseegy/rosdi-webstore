@@ -1,0 +1,34 @@
+// Diagnostik s445d: lacak hash langkah-demi-langkah untuk ide 62 & 69.
+import { writeFileSync, mkdirSync } from "node:fs";
+const [wsUrl, widthArg, _baseUrl, outDir] = process.argv.slice(2);
+const WIDTH = parseInt(widthArg || "390", 10);
+mkdirSync(outDir, { recursive: true });
+const ws = new WebSocket(wsUrl);
+let nextId = 1;
+const pending = new Map();
+const send = (m, p = {}) => new Promise((res, rej) => { const id = nextId++; pending.set(id, { resolve: res, reject: rej }); ws.send(JSON.stringify({ id, method: m, params: p })); });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+ws.onmessage = (ev) => { const msg = JSON.parse(ev.data); if (msg.id && pending.has(msg.id)) { const { resolve, reject } = pending.get(msg.id); pending.delete(msg.id); if (msg.error) reject(new Error(JSON.stringify(msg.error))); else resolve(msg.result); } };
+await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
+await send("Page.enable"); await send("Runtime.enable");
+await send("Emulation.setDeviceMetricsOverride", { width: WIDTH, height: 900, deviceScaleFactor: 1, mobile: true });
+const evalJs = (e) => send("Runtime.evaluate", { expression: e, returnByValue: true, awaitPromise: true }).then((r) => { if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails).slice(0, 400)); return r.result.value; });
+const log = [];
+const mark = async (label) => { log.push(label + " => hash=" + await evalJs("location.hash") + " href=" + await evalJs("location.href") + " h1=" + await evalJs("document.querySelector('h1')?.textContent") + " histLen=" + await evalJs("history.length")); };
+await evalJs("localStorage.clear(); 'ok'");
+await mark("awal");
+await evalJs("location.hash = '#/'; 'ok'"); await sleep(1100); await mark("setelah nav #/");
+await evalJs("location.hash = '#/game/mobile-legends'; 'ok'"); await sleep(1100); await mark("setelah nav mlbb");
+await evalJs("location.hash = '#/cek'; 'ok'"); await sleep(1100); await mark("setelah nav cek");
+await evalJs("history.back(); 'ok'"); await sleep(1100); await mark("setelah history.back() dari cek");
+await evalJs("location.hash = '#/cek'; 'ok'"); await sleep(1100); await mark("nav cek lagi");
+await evalJs("location.hash = '#/'; 'ok'"); await sleep(1100); await mark("nav #/ lagi");
+await evalJs("(() => { [...document.querySelectorAll('footer .flink')].find((b) => b.textContent.trim() === 'Syarat & Ketentuan').click(); return 'ok'; })()");
+await sleep(400); await mark("setelah klik S&K");
+log.push("modal=" + await evalJs("document.querySelectorAll('.modal-veil').length + ' judul=' + (document.querySelector('.modal h3')?.textContent || '-')"));
+await evalJs("history.back(); 'ok'"); await sleep(1100); await mark("setelah history.back() saat modal");
+log.push("modalSetelahBack=" + await evalJs("document.querySelectorAll('.modal-veil').length"));
+writeFileSync(`${outDir}/diag-s445d-${WIDTH}.txt`, log.join("\n") + "\n");
+console.log(log.join("\n"));
+try { ws.close(); } catch {}
+process.exit(0);
