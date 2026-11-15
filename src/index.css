@@ -1,0 +1,511 @@
+/* Hallmark v2.0.0 · Rosdi Store webstore · genre playful-commerce · theme custom biru/putih/abu (permintaan Mas) · waive 74 (palet slate/biru = brief eksplisit user) · answered 40 (putih di atas biru untuk teks tombol tebal & komponen UI) */
+/* Setiap warna & font berasal dari token di bawah; tidak ada warna literal melewati blok ini. */
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --field: #f8fafc;
+  --ink: #0f172a;
+  --sub: #5b6b82;
+  --faint: #94a3b8;
+  --line: #e2e8f0;
+  --blue: #2563eb;
+  --blue-text: #2563eb;
+  --blue-strong: #1d4ed8;
+  --blue-deep: #1e3a8a;
+  --blue-soft: #eff6ff;
+  --hero-btn-hover: #dbeafe;
+  --green: #047857; /* emerald-700: kontras 5,48:1 di atas putih (AA teks kecil); #059669 lama cuma 3,77:1 — temuan s432 ide 88 */
+  --green-soft: #ecfdf5;
+  --red: #b91c1c; /* s451 ide 7: #dc2626 di atas --red-soft cuma 4,41:1 (< 4,5:1 AA teks kecil) — red-700 5,92:1; pola yang sama dengan --green s432 ide 88 */
+  --red-soft: #fef2f2;
+  --amber: #b45309;
+  --amber-soft: #fffbeb;
+  --white: #ffffff;
+  --hero-sub: #c7d7fb;
+  --veil: rgba(8, 15, 30, 0.55);
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1220;
+  --surface: #131f36;
+  --surface-2: #0e1930;
+  --field: #0e1930;
+  --ink: #f1f5f9;
+  --sub: #9db0c9;
+  --faint: #64748b;
+  --line: #22314f;
+  --blue: #3b82f6;
+  --blue-text: #60a5fa;
+  --blue-strong: #2563eb;
+  --blue-deep: #172f5e;
+  --blue-soft: #16294d;
+  --green: #34d399;
+  --green-soft: #0c2b21;
+  --red: #f87171;
+  --red-soft: #33161a;
+  --amber: #fbbf24;
+  --amber-soft: #2e230a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+* { box-sizing: border-box; }
+/* s432 ide 84: skip link — tersembunyi sampai fokus keyboard */
+.skip-link { position: absolute; left: -9999px; top: 0; background: var(--surface); color: var(--blue-text); padding: 10px 16px; border-radius: 0 0 10px 0; font-weight: 600; font-size: 14px; z-index: 100; border: 1px solid var(--line); }
+.skip-link:focus { left: 0; }
+html, body { overflow-x: hidden; overflow-x: clip; } /* s438 ide 31: hidden = fallback bila clip tak didukung */
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; /* s438 ide 17: hilangkan highlight abu bawaan saat ketuk */
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font); cursor: pointer; }
+input, select { font-family: var(--font); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+::placeholder { color: var(--sub); opacity: 1; } /* s438 ide 38: Firefox memberi opasitas bawaan pada placeholder; s466 ide 43: --faint 2,56:1 (Light) / 3,46:1 (Dark) gagal AA 4,5:1 untuk teks placeholder — --sub 5,43:1 / 7,43:1 */
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+/* s449 ide 8: halaman pertama sebelumnya muncul instan — fade-in singkat
+   saat <main> dipasang (sekali saat muat awal; navigasi hash tidak me-mount
+   ulang main, jadi transisi antar-halaman tetap antrean ide 7). */
+@keyframes page-in { from { opacity: 0; } }
+main#konten { animation: page-in .3s var(--ease) both; }
+
+/* header */
+header.site {
+  position: -webkit-sticky; position: sticky; top: 0; z-index: 40; /* s438 ide 32: prefix untuk Safari lama */
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.header-in { display: flex; align-items: center; gap: 14px; min-height: 62px; flex-wrap: wrap; }
+/* B5 — zoom ekstrem/reflow (s458-3, s460-5, s463-5, s465-8): perbaikan harus
+   INTRINSIK, bukan media query — audit memakai CSS zoom (viewport tetap 390px,
+   media query tidak menyala) sementara lebar layout menyusut (~205px di 190%).
+   Logo boleh terpotong (ellipsis) + header boleh membungkus ke 2 baris,
+   sehingga tombol tema + Masuk selalu terjangkau, bukan terpotong clip. */
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; min-width: 0; }
+.logo > span:last-child { min-width: 0; }
+.logo-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* s460 ide 5: logo sebelumnya tanpa feedback hover — samakan dengan kartu/link. */
+.logo:hover { opacity: 0.85; }
+.logo-mark { width: 36px; height: 36px; border-radius: 10px; background: var(--blue); color: var(--white); display: grid; place-items: center; font-size: 18px; font-weight: 600; flex: 0 0 auto; }
+.logo small { display: block; font-size: 10.5px; font-weight: 500; color: var(--sub); }
+nav.main { display: flex; gap: 4px; margin-left: 12px; }
+nav.main a { padding: 8px 12px; border-radius: 9px; font-size: 13.5px; font-weight: 500; color: var(--sub); }
+nav.main a:hover, nav.main a.on { color: var(--blue-text); background: var(--blue-soft); }
+.header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.icon-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--sub); display: grid; place-items: center; font-size: 16px; transition: border-color 0.15s var(--ease), color 0.15s var(--ease), transform 0.15s var(--ease); }
+/* s438 ide 19: tombol ikon (tema) + tombol kembali sebelumnya diam saat ditekan */
+.icon-btn:hover, .crumb .back:hover { border-color: var(--blue); color: var(--blue-text); }
+.icon-btn:active, .crumb .back:active { transform: scale(0.94); }
+.crumb .back { transition: border-color 0.15s var(--ease), color 0.15s var(--ease), transform 0.15s var(--ease); }
+.btn { border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 14px; background: var(--blue); color: var(--white); transition: background-color 0.15s var(--ease), transform 0.15s var(--ease); }
+.btn:hover { background: var(--blue-strong); }
+.btn:disabled { background: var(--surface-2); color: var(--sub); cursor: not-allowed; }
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--blue); color: var(--blue-text); }
+.btn:active { transform: scale(0.98); }
+.btn.big { padding: 13px 22px; font-size: 15px; border-radius: 12px; width: 100%; }
+/* s458 ide 68-70: teks putih di atas --blue Dark cuma 3,68:1 (< 4,5:1 AA) — tombol utama, tombol "+" stepper, dan logo-mark pakai --blue-strong di Dark (5,17:1); hover pakai --blue-deep agar tetap menggelap. --blue Dark TIDAK diubah: harga flash (Home.jsx) + tautan mismatch memakai var(--blue) sebagai teks di atas surface (4,47:1) dan akan regresi bila token digelapkan. */
+[data-theme="dark"] .btn:not(.ghost):not(:disabled) { background: var(--blue-strong); }
+[data-theme="dark"] .btn:not(.ghost):not(:disabled):hover { background: var(--blue-deep); }
+[data-theme="dark"] .hero .btn:not(.ghost):not(:disabled) { background: var(--white); color: var(--blue-deep); }
+[data-theme="dark"] .hero .btn:not(.ghost):not(:disabled):hover { background: var(--hero-btn-hover); color: var(--blue-deep); }
+[data-theme="dark"] .qty button.plus:not([aria-disabled="true"]) { background: var(--blue-strong); }
+[data-theme="dark"] .qty button.plus:not([aria-disabled="true"]):hover { background: var(--blue-deep); }
+[data-theme="dark"] .logo-mark { background: var(--blue-strong); }
+
+/* hero + search */
+.hero { background: var(--blue-deep); color: var(--white); border-radius: 20px; padding: 30px 28px; margin: 18px 0 6px; position: relative; overflow: hidden; }
+.hero h1 { text-wrap: balance; margin: 0 0 8px; font-size: 27px; line-height: 1.2; max-width: 520px; overflow-wrap: break-word; min-width: 0; }
+.hero p { margin: 0 0 18px; color: var(--hero-sub); max-width: 480px; font-size: 14px; }
+.hero .btn { background: var(--white); color: var(--blue-deep); position: relative; z-index: 1; }
+.hero .btn:hover { background: var(--hero-btn-hover); transform: translateY(-1px); box-shadow: var(--shadow); } /* Fase 3 B4 (s457-5): hover tadinya cuma ganti warna instan — angkat lembut + bayangan (transisi transform sudah ada di .btn; bayangan pakai token --shadow, bukan literal rgba) */
+/* Media query header/hero HARUS di bawah aturan dasarnya: aturan dasar yang
+   datang sesudah media query akan memenangkannya (spesifisitas sama) dan
+   membuat media query mati — itu yang terjadi sebelum Siklus 71 (nav +
+   tagline tetap tampil di ≤620px, tombol Masuk terpotong di 320px). */
+@media (max-width: 620px) {
+  nav.main { display: none; }
+  .header-in { gap: 10px; }
+}
+@media (max-width: 560px) {
+  .logo small { display: none; }
+  .hero { padding: 22px 18px; }
+  .hero h1 { font-size: 23px; }
+}
+/* B5 — viewport nyata yang sangat sempit (≤280px): sembunyikan teks logo
+   (tinggal mark "R"), rapatkan gap + padding Masuk agar header tetap 1 baris. */
+@media (max-width: 280px) {
+  .logo > span:last-child { display: none; }
+  .header-in { gap: 8px; }
+  .header-actions .btn { padding: 10px 12px; }
+}
+.searchbar { display: flex; gap: 10px; margin: 14px 0 4px; }
+.searchbar .field { flex: 1; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--sub); border-radius: 12px; padding: 0 14px; height: 46px; transition: border-color .15s var(--ease); } /* s462 ide 8: transisi border saat fokus */
+/* s443 ide 73: input pencarian mematikan outline sendiri (outline:none) —
+   beri cincin fokus pada wrapper-nya saat input fokus via keyboard. */
+.searchbar .field:focus-within { outline: 2px solid var(--blue); outline-offset: 2px; border-color: var(--blue); } /* s462 ide 8 */
+.searchbar input { border: 0; background: transparent; color: var(--ink); font-size: 16px; width: 100%; outline: none; }
+/* B2 — petunjuk pintasan pencarian (s456-4): dekoratif saja (aria-hidden),
+   disembunyikan di layar kecil agar tidak makan ruang kolom cari. */
+.kbd-hint { font: inherit; font-size: 11px; font-weight: 600; color: var(--sub); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; flex: 0 0 auto; }
+@media (max-width: 560px) { .kbd-hint { display: none; } }
+.searchbar .mag { color: var(--sub); font-size: 15px; } /* s443 ide 74: --faint 2,56:1 gagal 3:1 di Light — --sub 5,43:1 */
+
+/* chips */
+/* s445 ide 2: fade tepi kanan — penanda chip masih bisa di-scroll horizontal
+   (390px: scrollWidth 777 vs clientWidth 358 tanpa indikator apa pun). */
+.chips { display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; padding: 12px 2px 4px; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, var(--ink) calc(100% - 32px), transparent 100%); mask-image: linear-gradient(to right, var(--ink) calc(100% - 32px), transparent 100%); }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); color: var(--sub); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background-color 0.15s var(--ease), transform 0.15s var(--ease); }
+/* s438 ide 13: chip/tab memberi feedback sesaat saat ditekan */
+.chip:active, .tab:active { transform: scale(0.96); }
+.chip:hover { border-color: var(--blue); color: var(--blue-text); }
+.chip.on { background: var(--blue-strong); border-color: var(--blue-strong); color: var(--white); font-weight: 700; } /* s432 ide 82: penanda terpilih non-warna */
+
+/* sections + cards */
+section.block { margin: 26px 0; scroll-margin-top: 78px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.sec-head h2 { margin: 0; font-size: 18px; text-wrap: balance; }
+.sec-head .more { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--blue-text); }
+.count-chip { color: var(--red); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.grid { display: grid; gap: 12px; }
+.grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 860px) { .grid.c4 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .grid.c4, .grid.c3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .grid.c2 { grid-template-columns: minmax(0, 1fr); } } /* flash sale 1 kolom: di 2 kolom kartu 390px jadi 281px tingginya (nama+ badge wrap 2x, celah kosong besar) — diukur CDP Siklus 72 */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+a.card, button.card { text-align: left; width: 100%; transition: border-color 0.15s var(--ease), transform 0.15s var(--ease); }
+a.card:hover, button.card:hover { border-color: var(--blue); }
+/* s459 ide 9: kartu game/flash tadinya diam saat ditekan (hanya :hover) — beri feedback tekan seperti .nom/.pay/.btn. */
+a.card:active, button.card:active { transform: scale(0.99); }
+#cara-topup .card:active { transform: scale(0.99); } /* s462 ide 5: umpan balik tekan (sebelumnya :active tanpa aturan visual) */
+.tile { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; color: var(--white); font-weight: 600; font-size: 15px; flex: 0 0 auto; }
+.p-name { font-weight: 600; font-size: 14.5px; margin: 10px 0 2px; }
+.p-sub { color: var(--sub); font-size: 12.5px; }
+.p-from { color: var(--blue-text); font-weight: 600; font-size: 13px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+/* s449 ide 4: badge sebelumnya muncul instan saat ganti tab — fade+scale
+   singkat saat badge dipasang (mount), mengikuti pola .was/.note. */
+@keyframes badge-in { from { opacity: 0; transform: scale(0.9); } }
+.badge { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--red-soft); color: var(--red); animation: badge-in .25s var(--ease) both; }
+/* s458 ide 3: kartu Flash Sale tadinya muncul sekaligus tanpa animasi — stagger singkat saat Beranda dimuat.
+   Fase 3 B4 (s466-2): generalisasi ke semua grid katalog — kartu game/pulsa/data/voucher/e-wallet sebelumnya muncul
+   instan tanpa gerakan (skeleton tidak berlaku: data lokal sinkron, tanpa loading — entrance stagger jawabannya). */
+@keyframes card-in { from { opacity: 0; transform: translateY(6px); } }
+.grid .card { animation: card-in .3s var(--ease) both; }
+.grid .card:nth-child(2) { animation-delay: .05s; }
+.grid .card:nth-child(3) { animation-delay: .1s; }
+.grid .card:nth-child(4) { animation-delay: .15s; }
+.grid .card:nth-child(n+5) { animation-delay: .2s; }
+.badge.blue { background: var(--blue-soft); color: var(--blue-text); }
+/* s445 ide 7: coret tadinya muncul instan (animation: none) saat item flash
+   dipilih — fade singkat saat .was dipasang; line-through sendiri tidak bisa
+   ditransisikan, opacity adalah pengganti standarnya. */
+.was { color: var(--sub); text-decoration: line-through; font-size: 12px; font-weight: 400; animation: was-in .3s var(--ease) both; }
+@keyframes was-in { from { opacity: 0; } }
+.progress { height: 6px; border-radius: 3px; background: var(--surface-2); margin-top: 10px; overflow: hidden; }
+/* s443 ide 1: bar terisi dari kiri saat muat (transform saja, lebar inline tetap).
+   s445 ide 8: animasi itu jalan saat halaman dimuat — di 390x400 bar sudah penuh
+   (rasio 0,68/0,81) padahal seksi flash masih di bawah fold. Scroll-driven
+   animation: bar tumbuh saat masuk viewport; browser tanpa dukungan
+   animation-timeline mengabaikan dua deklarasi itu dan kembali ke perilaku lama. */
+.progress i { display: block; height: 100%; background: var(--blue); border-radius: 3px; transform-origin: left; animation: prog-fill .6s var(--ease) both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
+@keyframes prog-fill { from { transform: scaleX(0); } }
+/* Fase 3 B4 (s457-2): angka "Terjual 68%" tadinya statis — menghitung naik 0→target saat kartu flash muncul.
+   CSS-only via @property: --sold dianimasikan keyframe, counter menampilkannya. Browser tanpa @property:
+   properti tak terdaftar tetap beranimasi diskret (lompat 0→target di tengah animasi). Angka asli tetap ada
+   sebagai teks .sr-only untuk screen reader; span visual aria-hidden. */
+@property --sold { syntax: "<integer>"; initial-value: 0; inherits: false; }
+.sold-num { display: inline-block; font-variant-numeric: tabular-nums; --sold: 0; counter-reset: sold var(--sold); animation: sold-count 1s var(--ease) .15s both; }
+.sold-num::after { content: counter(sold); }
+@keyframes sold-count { to { --sold: var(--sold-to, 0); } }
+@media (prefers-reduced-motion: reduce) { .sold-num { --sold: var(--sold-to, 0); } }
+
+/* trust strip */
+.trust { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .trust { grid-template-columns: minmax(0, 1fr); } }
+/* s445 ide 4: kartu trust tadinya diam saat di-hover (div.card, jadi aturan
+   a.card:hover tidak berlaku) — angkat + border biru seperti kartu lain. */
+.trust .card { display: flex; gap: 12px; align-items: flex-start; transition: border-color 0.15s var(--ease), transform 0.15s var(--ease); }
+.trust .card:hover { border-color: var(--blue); transform: translateY(-2px); }
+.trust .card:active { transform: scale(0.99); } /* s463 ide 2: umpan balik tekan (sebelumnya :active tanpa aturan visual, seperti #cara-topup s462 ide 5) */
+.trust .ic { width: 38px; height: 38px; border-radius: 10px; background: var(--blue-soft); color: var(--blue-text); display: grid; place-items: center; font-size: 17px; flex: 0 0 auto; }
+.trust b { font-size: 13.5px; display: block; }
+.trust span { font-size: 12px; color: var(--sub); }
+
+/* product page layout */
+.crumb { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; }
+.crumb .back { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; }
+.crumb h1 { font-size: 19px; margin: 0; }
+.crumb p { margin: 1px 0 0; color: var(--sub); font-size: 12.5px; }
+.flow { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; }
+/* s444 ide 80: align-items:start membuat <aside> setinggi ringkasan saja
+   sehingga position:sticky .summary tidak punya ruang gerak (terbukti CDP
+   1280x900: top summary ikut gulir 1:1) — tanpa itu aside merentang setinggi
+   kolom langkah dan sticky top:78px bekerja. */
+@media (max-width: 900px) { .flow { grid-template-columns: minmax(0, 1fr); } }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.step-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-strong); color: var(--white); font-size: 13px; font-weight: 600; display: grid; place-items: center; flex: 0 0 auto; }
+.step-head h2 { margin: 0; font-size: 15px; }
+.step-head .hint-link { margin-left: auto; font-size: 12.5px; color: var(--blue-text); font-weight: 500; background: none; border: 0; padding: 0; }
+/* Tautan bantuan di dalam catatan (GamePage: "Cara menemukan User ID saya"):
+   tanpa aturan global ini tombolnya memakai gaya default browser (border
+   abu-abu) karena hanya .step-head .hint-link yang didefinisikan. */
+.hint-link { font-size: 12.5px; color: var(--blue-text); font-weight: 500; background: none; border: 0; padding: 0; }
+.hint-link:hover, .sec-head .more:hover { text-decoration: underline; }
+/* s438 ide 20: tautan memberi feedback sesaat saat ditekan */
+.sec-head .more:active, .hint-link:active, footer.site a:active, footer.site button.flink:active { color: var(--blue-strong); }
+label.flabel { display: block; font-size: 12.5px; font-weight: 500; color: var(--sub); margin: 0 0 6px; }
+/* s437 ide 71: border input memakai --sub (bukan --line) agar lolos kontras non-teks 3:1 — --line vs field cuma 1,18:1 (light) / 1,35:1 (dark); --sub vs field 5,19:1 / 7,90:1. */
+/* s437 ide 80: font-size input 16px agar iOS Safari tidak auto-zoom saat fokus (sebelumnya 14,5px). */
+.input { width: 100%; height: 46px; border: 1px solid var(--sub); border-radius: 10px; background: var(--field); color: var(--ink); padding: 0 14px; font-size: 16px; outline: none; transition: border-color 0.15s var(--ease); }
+.input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+.input.err { border-color: var(--red); }
+/* s450 ide 4: penanda valid — input yang sudah sah ber-border hijau (pasangan .err merah); hanya saat ada isi, agar kolom kosong tidak ikut hijau. */
+.input.ok { border-color: var(--green); }
+/* s450 ide 79: teks khusus screen reader (mis. "harga lama" sebelum harga coret) — tak terlihat visual. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.note { font-size: 12px; color: var(--sub); margin-top: 8px; }
+.note.bad { color: var(--red); animation: note-in .25s var(--ease) both; }
+/* Fase 3 B4 (s465-3): peringatan email/WA di CheckoutShell tadinya muncul instan (plain .note tanpa animasi) —
+   samakan dengan .note.bad/.note.good yang sudah fade. */
+.note.warn { animation: note-in .25s var(--ease) both; }
+/* Fase 3 B4 (s455-5): pesan promo gagal tadinya cuma fade — tambah goyangan sebagai penanda error.
+   Hanya di catatan promo (class .shake), bukan semua .note.bad, agar pesan validasi lain tetap tenang.
+   Dua animasi menargetkan transform: shake menang atas translateY note-in, opacity note-in tetap jalan. */
+.note.bad.shake { animation: note-in .25s var(--ease) both, shake .4s var(--ease) .08s both; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@keyframes note-in { from { opacity: 0; transform: translateY(-2px); } }
+.note.good { color: var(--green); animation: note-in .25s var(--ease) both; } /* s448 ide 1+6: catatan sukses (deteksi operator / promo) tadinya muncul instan, sementara .note.bad punya fade — samakan */
+/* s456 ide 9: tombol Pakai→Hapus tadinya bertukar instan (dua elemen berbeda,
+   tanpa animasi) — fade singkat saat tombol dipasang (mount). */
+.promo-btn { animation: note-in .25s var(--ease) both; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 10px; }
+.row2.eq { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 560px) { .row2, .row2.eq { grid-template-columns: minmax(0, 1fr); } }
+
+/* nominal grid */
+.nom-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .nom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* s457 ide 79: di bawah ~280px (zoom ekstrem) 2 kolom membuat harga terpanjang
+   ("Rp1.199.000", ~83px) meluber keluar kartu karena harga tak bisa wrap —
+   satu kolom agar harga selalu muat. */
+@media (max-width: 280px) { .nom-grid { grid-template-columns: minmax(0, 1fr); } }
+/* s434 ide 68: kartu nominal satu baris harus sejajar — tanpa meta, harga
+   naik ~13px dibanding kartu bermeta. Flex column + margin auto menambat
+   harga ke bawah kartu; grid tetap menyamakan tinggi kartu sebaris. */
+.nom { position: relative; text-align: left; background: var(--field); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease), transform 0.15s var(--ease); width: 100%; color: var(--ink); display: flex; flex-direction: column; }
+/* s438 ide 12: kartu nominal & baris metode memberi feedback sesaat saat ditekan */
+.nom:active, .pay:active { transform: scale(0.99); }
+.nom:hover { border-color: var(--blue); transform: translateY(-2px); } /* s462 ide 6: hover terangkat seperti kartu trust */
+/* Fase 3 B4 (s455-1): kartu nominal tadinya muncul sekaligus tanpa gerakan — stagger saat halaman produk dimuat.
+   Delay per kartu via --i inline (JSX). Class .settled (CheckoutShell, ~1 detik setelah mount/ganti tab) mematikan
+   animasi entrance agar (a) hover lift tetap bekerja (fill both menahan transform) dan (b) ganti pilihan tidak
+   memutar ulang entrance saat .on dilepas; pop pilihan tetap jalan lewat aturan .settled .nom.on. */
+.nom-grid .nom { animation: nom-in .32s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes nom-in { from { opacity: 0; transform: translateY(6px); } }
+.nom-grid.settled .nom { animation: none; }
+.nom-grid.settled .nom.on { animation: nom-pop .18s var(--ease); }
+.nom.on { border-color: var(--blue); background: var(--blue-soft); border-width: 2px; animation: nom-pop .18s var(--ease); } /* s432 ide 82: penanda terpilih non-warna — border menebal, bukan cuma warna */
+.nom .n-name { font-weight: 600; font-size: 13.5px; display: block; overflow-wrap: anywhere; }
+.nom .n-meta { color: var(--sub); font-size: 11.5px; display: block; margin-top: 1px; overflow-wrap: anywhere; }
+.nom .n-price { color: var(--blue-text); font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; display: block; margin-top: auto; padding-top: 6px; overflow-wrap: anywhere; }
+.nom .badge { position: absolute; top: -8px; right: 10px; }
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.tab { border: 1px solid var(--line); background: var(--surface); color: var(--sub); padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 500; transition: border-color 0.15s var(--ease), color 0.15s var(--ease), transform 0.15s var(--ease); }
+.tab:hover { border-color: var(--blue); color: var(--blue-text); }
+.tab.on { background: var(--blue-strong); border-color: var(--blue-strong); color: var(--white); font-weight: 700; } /* s432 ide 82: penanda terpilih non-warna */
+
+/* qty */
+.qty { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 10px; padding: 4px; background: var(--field); }
+.qty button { width: 34px; height: 34px; border-radius: 8px; border: 0; background: var(--surface); color: var(--ink); font-size: 16px; font-weight: 600; transition: background-color .15s var(--ease), transform .15s var(--ease); }
+.qty button.plus { background: var(--blue); color: var(--white); }
+.qty button[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+/* s448 ide 8: tombol stepper tadinya diam saat hover/ditekan. */
+.qty button:not([aria-disabled="true"]):hover { background: var(--surface-2); }
+.qty button.plus:not([aria-disabled="true"]):hover { background: var(--blue-strong); }
+.qty button:not([aria-disabled="true"]):active { transform: scale(0.93); }
+/* Fase 3 B4 (s457-1 + s460-1): tombol mentok tadinya disabled — klik tidak memicu event apa pun, jadi tidak ada
+   feedback. Kini aria-disabled (tetap bisa diklik/fokus, diumumkan "dimmed" ke SR); tekan di batas menggoyang
+   grup qty (class .nudge di CheckoutShell). */
+.qty.nudge { animation: shake .35s var(--ease); }
+.qty b { min-width: 34px; text-align: center; font-size: 15px; animation: qty-pop .18s var(--ease); }
+/* Fase 4 B6 (s461-3): input angka qty menggantikan <b> — ukuran dan gaya
+   disamakan dengan angka lama (34px, rata tengah, tabular agar tidak
+   goyang saat digit berubah); tanpa border sendiri, border ada di .qty. */
+.qty-input { width: 34px; height: 34px; border: 0; background: none; color: var(--ink); text-align: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; padding: 0; outline: none; }
+.qty-input:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-radius: 6px; }
+/* s444 ide 3/6/7/8: angka stepper, kartu nominal terpilih, timeline Cek,
+   dan kartu hasil Cek muncul dengan gerakan kecil (key={qty} di JSX
+   memicu ulang animasi tiap angka berubah). */
+@keyframes qty-pop { from { opacity: 0; transform: translateY(-4px) scale(0.9); } }
+@keyframes nom-pop { 0% { transform: scale(1); } 40% { transform: scale(1.03); } 100% { transform: scale(1); } }
+.timeline li { animation: tl-in .3s var(--ease) both; }
+.timeline li:nth-child(2) { animation-delay: .08s; }
+.timeline li:nth-child(3) { animation-delay: .16s; }
+@keyframes tl-in { from { opacity: 0; transform: translateY(4px); } }
+.cek-result { animation: cek-in .3s var(--ease) both; }
+/* s445 ide 76: target fokus programatik — kartu hasil kini pemberhentian Tab
+   (tabIndex 0, s446 ide 57) agar Tab berikutnya lanjut ke riwayat/footer,
+   bukan melompat ke logo header; outline terlihat karena ini titik fokus. */
+.cek-result:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+@keyframes cek-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* payments */
+.pay-group { font-size: 12px; font-weight: 600; color: var(--sub); margin: 14px 0 8px; }
+.pay-group:first-child { margin-top: 0; }
+.pay { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--field); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 8px; color: var(--ink); transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease), transform 0.15s var(--ease); }
+.pay:hover { border-color: var(--blue); }
+.pay.on { border-color: var(--blue); background: var(--blue-soft); border-width: 2px; } /* s432 ide 82: penanda terpilih non-warna */
+.pay:disabled { opacity: 0.55; cursor: not-allowed; }
+/* s433 ide 3: baris disabled tidak boleh ikut hover biru seolah bisa diklik */
+.pay:disabled:hover { border-color: var(--line); }
+.pay .pm { width: 38px; height: 38px; border-radius: 9px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; font-weight: 600; font-size: 11px; color: var(--blue-text); flex: 0 0 auto; }
+.pay > span:nth-child(2) { min-width: 0; }
+.pay .p-name2 { font-weight: 600; font-size: 13.5px; display: block; margin: 0; overflow-wrap: break-word; }
+.pay .p-desc { color: var(--sub); font-size: 11.5px; display: block; }
+.pay .p-price { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 13.5px; white-space: nowrap; }
+.pay .p-fee { display: block; text-align: right; color: var(--sub); font-size: 11px; font-weight: 400; }
+.status-tag { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--amber-soft); color: var(--amber); }
+
+/* summary */
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); position: sticky; top: 78px; }
+.summary h2 { margin: 0 0 12px; font-size: 15px; }
+.sum-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 5px 0; color: var(--sub); }
+/* s448 ide 3: baris riwayat (button.sum-row) tadinya diam saat hover.
+   background: none pindah ke sini dari inline style InfoPages agar :hover
+   bisa menang atas gaya inline. */
+button.sum-row { background: none; }
+button.sum-row:hover { background: var(--surface-2); border-radius: 8px; }
+/* s459 ide 10: baris riwayat tadinya tanpa feedback tekan (hanya :hover) — beri feedback tekan seperti .nom/.pay/.btn. */
+button.sum-row:active { transform: scale(0.99); }
+/* s448 ide 10: daftar riwayat tadinya muncul instan saat Cek dimuat. */
+.hist-in { animation: cek-in .3s var(--ease) both; }
+/* Fase 3 B4 (s455-4): baris riwayat di luar 5 pertama tadinya muncul/hilang instan saat toggle —
+   bungkus grid-template-rows 0fr↔1fr agar mengembang/menciut beranimasi. Baris tersembunyi tidak bisa
+   difokus (tabIndex -1 + aria-hidden, InfoPages.jsx) dan roving dibatasi ke baris terlihat. */
+.hist-more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s var(--ease); }
+.hist-more.open { grid-template-rows: 1fr; }
+.hist-more > div { overflow: hidden; min-height: 0; }
+/* Fase 3 B4 (s466-5): tombol "Lihat semua" tadinya tanpa ikon panah sama sekali — tambah chevron SVG
+   (InfoPages.jsx) yang berputar 180° saat dibuka. */
+.hist-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.hist-toggle svg { transition: transform .25s var(--ease); flex: 0 0 auto; }
+.hist-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.sum-row b { color: var(--ink); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sum-row.disc b { color: var(--green); }
+/* s444 ide 1: baris Diskon muncul dengan sorotan hijau yang memudar. */
+.sum-row.disc { animation: disc-in 1.2s var(--ease) both; border-radius: 8px; }
+@keyframes disc-in { from { background: var(--green-soft); } }
+.sum-total { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+.sum-total span { font-weight: 600; font-size: 14px; }
+.sum-total b { font-size: 19px; color: var(--blue-text); font-variant-numeric: tabular-nums; display: inline-block; animation: qty-pop .18s var(--ease); } /* Fase 3 B4 (s465-5): Total aside tadinya ganti instan saat qty berubah — animasi tiap berubah (key={total} di CheckoutShell, pola sama dengan mobile-bar s462 ide 7) */
+.guarantee { display: flex; gap: 9px; background: var(--green-soft); color: var(--green); border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 500; margin-top: 14px; }
+.mobile-bar { display: none; }
+@media (max-width: 900px) {
+  /* s445 ide 9: mobile-bar tadinya muncul mendadak (display none -> flex tanpa
+     animasi) saat melewati breakpoint — geser masuk dari bawah. Animasi jalan
+     saat elemen pertama kali dirender (display berubah), bukan saat scroll. */
+  .mobile-bar { display: flex; align-items: center; gap: 14px; position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); margin: 0 -16px; z-index: 30; animation: mb-in .25s var(--ease) both; }
+  .mobile-bar .mb-total { min-width: 0; flex: 1; }
+  .mobile-bar .mb-total span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; color: var(--sub); }
+  .mobile-bar .mb-total b { color: var(--blue-text); font-size: 17px; display: block; line-height: 1.15; animation: qty-pop .18s var(--ease); } /* s462 ide 7: angka Total mobile-bar beranimasi saat berubah (key={total} di CheckoutShell) */
+  .mobile-bar .btn { margin-left: auto; padding: 12px 22px; flex: 0 0 auto; }
+}
+@keyframes mb-in { from { transform: translateY(100%); } }
+
+/* success + cek */
+.big-check { width: 64px; height: 64px; border-radius: 50%; background: var(--green-soft); color: var(--green); display: grid; place-items: center; font-size: 30px; margin: 6px auto 12px; }
+.token-box { font-variant-numeric: tabular-nums; background: var(--field); border: 1.5px dashed var(--blue); border-radius: 12px; padding: 14px; text-align: center; font-size: 19px; font-weight: 600; letter-spacing: 0.14em; color: var(--blue-text); margin: 12px 0; animation: token-in .4s var(--ease) both; }
+/* s450 ide 1-2: halaman Sukses masuk dengan gerakan kecil; token PLN muncul dengan sorotan (opacity saja, tanpa perubahan layout). */
+.success-in { animation: success-in .3s var(--ease) both; }
+@keyframes success-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes token-in { from { opacity: 0; transform: scale(0.98); } }
+/* Fase 3 B4 (s466-6): tombol "Salin" di Sukses tadinya bertukar teks instan tanpa ikon/transisi —
+   label bertukar dengan fade (key di InfoPages.jsx) + ikon centang SVG muncul dengan pop. */
+.copy-in { display: inline-flex; align-items: center; gap: 5px; animation: copy-in .25s var(--ease) both; }
+.copy-in svg { animation: check-pop .3s var(--ease) both; }
+@keyframes copy-in { from { opacity: 0; transform: translateY(2px); } }
+@keyframes check-pop { 0% { opacity: 0; transform: scale(.4); } 60% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+.timeline { margin: 8px 0 0; padding: 0; list-style: none; }
+.timeline li { display: flex; gap: 12px; padding: 7px 0; font-size: 13.5px; }
+.timeline .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--line); margin-top: 4px; flex: 0 0 auto; }
+.timeline li.done .dot { background: var(--green); border-color: var(--green); }
+.timeline li.now .dot { background: var(--blue); border-color: var(--blue); }
+.timeline small { color: var(--sub); display: block; font-size: 12px; }
+
+/* modal + toast */
+/* s454 ide 10: veil memudar masuk saat modal dibuka (pasangan: veil saat
+   ditutup sudah diaudit s450; modal sendiri tetap muncul instan). */
+@keyframes veil-in { from { opacity: 0; } }
+.modal-veil { position: fixed; inset: 0; background: var(--veil); display: grid; place-items: center; z-index: 60; padding: 16px; animation: veil-in .2s var(--ease) both; }
+/* s458 ide 7-8: kartu modal tadinya muncul instan (hanya veil yang memudar) — fade+naik singkat saat modal dibuka. */
+@keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+.modal { background: var(--surface); border-radius: 18px; padding: 24px; max-width: 400px; width: 100%; box-shadow: var(--shadow); animation: modal-in .25s var(--ease) both; }
+.modal h3 { margin: 0 0 6px; font-size: 17px; }
+.modal p { color: var(--sub); font-size: 13.5px; margin: 0 0 14px; }
+/* s443 ide 61: .toast mati (0 pemakaian JSX) — aturan dipertahankan sementara;
+   penghapusan + implementasi toast menunggu antrean s442. */
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 500; z-index: 70; box-shadow: var(--shadow); max-width: 92vw; text-align: center; }
+
+/* footer */
+footer.site { border-top: 1px solid var(--line); margin-top: 44px; background: var(--surface); }
+.foot-in { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 22px; padding: 30px 0 12px; }
+@media (max-width: 760px) { .foot-in { grid-template-columns: 1fr 1fr; } }
+footer.site h2 { margin: 0 0 10px; font-size: 13.5px; }
+footer.site a, footer.site p { color: var(--sub); font-size: 12.5px; display: block; margin: 0 0 7px; }
+/* s437 ide 77: tautan footer tingginya cuma 17–19px (< 24px minimum WCAG 2.2 AA) — padding vertikal menaikkan target sentuh tanpa mengubah tampilan. */
+footer.site a { padding: 4px 0; }
+footer.site button.flink, footer.site a.flink { background: none; border: 0; color: var(--sub); font-size: 12.5px; display: block; margin: 0 0 7px; padding: 4px 0; text-align: left; }
+footer.site button.flink:hover, footer.site a.flink:hover { color: var(--blue-text); }
+.pay-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pay-chips span { border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; font-size: 11px; color: var(--sub); font-weight: 600; }
+.copyright { border-top: 1px solid var(--line); padding: 14px 0 20px; color: var(--faint); font-size: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+/* B1 — skeleton: placeholder saat chunk lazy dimuat (Suspense fallback
+   App.jsx). Denyut opacity saja (bukan gradien bergerak) agar murah;
+   prefers-reduced-motion mematikan animasi lewat aturan * di bawah. */
+.skel { display: block; background: var(--surface-2); border-radius: 8px; animation: skel-pulse 1.1s var(--ease) infinite alternate; }
+@keyframes skel-pulse { from { opacity: 0.5; } to { opacity: 1; } }
+.skel-back { width: 38px; height: 38px; border-radius: 10px; flex: 0 0 auto; }
+.skel-tile { width: 42px; height: 42px; border-radius: 12px; flex: 0 0 auto; }
+.skel-col { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.skel-line { height: 14px; }
+.skel-input { height: 46px; border-radius: 10px; }
+.skel-nom { height: 84px; border-radius: 12px; }
+.skel-step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+
+.empty { text-align: center; color: var(--sub); padding: 34px 10px; font-size: 13.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* s457 ide 73: .chips punya scroll-behavior: smooth sendiri — aturan html
+     di atas tidak mematikannya. */
+  .chips { scroll-behavior: auto; }
+  /* s443 ide 10: `*` tanpa !important kalah spesifisitas dari aturan class
+     (.nom/.chip/.btn tetap 0.15s saat reduce aktif — terbukti CDP s443). */
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* s434 ide 90: cetak halaman Sukses sebagai struk — header, footer,
+   mobile-bar, dan tombol tidak ikut tercetak; ringkasan jadi statis. */
+@media print {
+  header.site, footer.site, .mobile-bar, .btn, .back, .skip-link { display: none !important; }
+  body { background: var(--white); }
+  .summary { position: static; }
+}
